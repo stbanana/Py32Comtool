@@ -1,0 +1,87 @@
+        # 测试代码1，给某框赋值
+        # self.ui.text_input.setPlainText('000')
+
+        #测试代码2，获取某框值并输出
+        # print('\n',self.ui.text_input.toPlainText(),'\n')
+
+        BI66 BL格式
+        前三位数据 帧长->和校验->指令
+
+       DC_Link电压             Bi1电流
+       输出电压                 Bi2电流
+       输出电流                 环境温度
+       输出功率                 散热器1温度
+       负载率                   散热器2温度
+
+       #用于添加库文件
+       python -m pip install  Pyinstaller  -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+
+       #bits转字符串
+                data_copy = ''
+                for i in range(0, len(data)):  # 获取字节数组字数据，注意引号 ' ' 之间有一个空格
+                    data_copy = data_copy + ' ' + (hex(int(data[i]))).upper()[2:].zfill(2)
+
+                for xii in data_copy:
+                    self.ui.textBrowser.insertPlainText(bytearray.fromhex(xii).decode(encoding='gbk', errors='replace'))
+
+        #用于PY打包成EXE
+        Pyinstaller -F -w -i aaa.ico main.py -p .\\HandleCAN -p .\\HandleUART -p .\\UI --add-binary=".\\kerneldlls\\ControlCAN.dll;."
+        Pyinstaller -F -w -i aaa.ico main.py -p .\\HandleCAN -p .\\HandleUART -p .\\UI --add-binary=".\\kerneldlls\\ControlCAN.dll;."
+
+
+         --add-binary=".\\kerneldlls\\*;.\\kerneldlls"
+        #需添加数据包转字符串后，字符串头尾标识符判断 @2022.10.14 已解决
+        #目前，大多数实际功能的实现中，将QT框体作为变量进行使用，需使用变量替换掉无用框体，解决框体依赖问题 @2022.10.17
+        #需添加“关闭”、“并网开机”、“离网开机”功能 @2022.10.17 已解决
+        #多串口时，偶尔产生闪退问题  @2022.11.3 查明由于未严格检查字符串长度，导致引用溢出 已解决
+        #收到数据时常乱码，影响通信效率，导致细节失真 @2022.11.3 查明传送字符末尾多发一个空格，引发通信失常
+
+        V1.1.5日志
+        实现交流电压、交流频率、交流电流、母线电压、环境温度、散热器温度数据的提取和显示
+        实现并网开机、直流开机、离网开机、关机功能的指令发出
+        稳定无闪退运行
+        待解决问题：《《《《收到数据时常乱码，影响通信效率，导致细节失真》》》》》
+
+        V1.1.6日志
+        解决问题：1.1.5乱码问题、多串口挤压问题
+        添加功能：数据后之间添加单位，跟随数据位置
+        额外修改：保留基本功能，去除示波器等暂无使用的功能
+
+class TabBar(QtWidgets.QTabBar):
+    def tabSizeHint(self, index):
+        s = QtWidgets.QTabBar.tabSizeHint(self, index)
+        s.transpose()
+        return s
+
+    def paintEvent(self, event):
+        painter = QtWidgets.QStylePainter(self)
+        opt = QtWidgets.QStyleOptionTab()
+
+        for i in range(self.count()):
+            self.initStyleOption(opt, i)
+            painter.drawControl(QtWidgets.QStyle.CE_TabBarTabShape, opt)
+            painter.save()
+
+            s = opt.rect.size()
+            s.transpose()
+            r = QtCore.QRect(QtCore.QPoint(), s)
+            r.moveCenter(opt.rect.center())
+            opt.rect = r
+
+            c = self.tabRect(i).center()
+            painter.translate(c)
+            painter.rotate(90)
+            painter.translate(-c)
+            painter.drawControl(QtWidgets.QStyle.CE_TabBarTabLabel, opt)
+            painter.restore()
+
+
+class TabWidget(QtWidgets.QTabWidget):
+    def __init__(self, *args, **kwargs):
+        QtWidgets.QTabWidget.__init__(self, *args, **kwargs)
+        self.setTabBar(TabBar(self))
+        self.setTabPosition(QtWidgets.QTabWidget.West)
+
+self.tabWidget_2 = TabWidget(self.tab_1) # 原型为  self.tabWidget_2 = QtWidgets.QTabWidget(self.tab_1)
